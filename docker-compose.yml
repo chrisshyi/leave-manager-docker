@@ -1,3 +1,45 @@
 version: '3.7'
 
+services:
+    web-app:
+        container_name: "leave-manager"
+        image: chrisshi/leave-manager:webapp-latest
+        expose:
+            - "8000"
+        environment:
+            - NODE_ENV='production'
+        volumes:
+            - react_volume:/home/node/app/client/build
+        networks:
+            - app_network
+        depends_on:
+            - mongo-db
+    mongo-db:
+        image: mongo:4.2.2-bionic
+        networks:
+            - app_network
+        volumes:
+            - ./mongo_volume:/data/db
+    nginx:
+        container_name: 'nginx-prod'
+        image: nginx:latest
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - web-app
+        networks:
+            - app_network
+        volumes:
+            - react_volume:/usr/src/app/react_files
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./dh-param/dhparam-2048.pem:/etc/ssl/certs/dhparam-2048.pem
+            - /docker-volumes/etc/letsencrypt/live/leave-manager.com/fullchain.pem:/etc/letsencrypt/live/leave-manager/com/fullchain.pem
+            - /docker-volumes/etc/letsencrypt/live/leave-manager.com/privkey.pem:/etc/letsencrypt/live/leave-manager/com/privkey.pem
+            - /docker-volumes/data/letsencrypt:/data/letsencrypt
 
+networks:
+    app_network:
+        driver: bridge
+volumes:
+    react_volume:
