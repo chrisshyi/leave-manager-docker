@@ -12,16 +12,16 @@ services:
         volumes:
             - react_volume:/home/node/app/client/build
         networks:
-            - app_network
+            - app-network
             - reverse-proxy
         depends_on:
             - mongo-db
     mongo-db:
         image: mongo:4.2.2-bionic
         networks:
-            - app_network
+            - app-network
         volumes:
-            - ./mongo_volume:/data/db
+            - mongo_volume:/data/db
 
 networks:
     app-network:
@@ -30,3 +30,4 @@ networks:
         external: true
 volumes:
     react_volume:
+    mongo_volume:
